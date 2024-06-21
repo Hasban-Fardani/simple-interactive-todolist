@@ -1,14 +1,15 @@
-const todos = [
-    {
-        id: 1,
-        task: "Tugas Flutter",
-        timestamp: "2024-06-20",
-        isCompleted: false
-    }
-];
+const todos = [];
 const RENDER_EVENT = 'render-todo';
 
 document.addEventListener('DOMContentLoaded', function () {
+    // load todos from localstorage if exist
+    const todoSaved = JSON.parse(localStorage.getItem('todos'));
+    if (todoSaved) {
+        todos.push(...todoSaved)
+        document.dispatchEvent(new Event(RENDER_EVENT));
+    }
+
+
     const submitForm = document.getElementById('form');
     submitForm.addEventListener('submit', function (event) {
         event.preventDefault();
@@ -41,6 +42,7 @@ function addTodo() {
     const todoObject = generateTodoObject(generatedID, textTodo, timestamp, false);
     todos.push(todoObject);
 
+    saveTodos();
     document.dispatchEvent(new Event(RENDER_EVENT));
 }
 
@@ -109,6 +111,8 @@ function addTaskToCompleted(todoId) {
     if (todoTarget == null) return;
 
     todoTarget.isCompleted = true;
+
+    saveTodos();
     document.dispatchEvent(new Event(RENDER_EVENT));
 }
 
@@ -122,6 +126,8 @@ function undoTaskFromCompleted(todoId) {
     if (todoTarget == null) return;
 
     todoTarget.isCompleted = false;
+
+    saveTodos();
     document.dispatchEvent(new Event(RENDER_EVENT));
 }
 
@@ -131,5 +137,11 @@ function removeTaskFromCompleted(todoId) {
 
     const todoIndex = todos.findIndex(todo => todo.id == todoId);
     todos.splice(todoIndex, 1);
+
+    saveTodos();
     document.dispatchEvent(new Event(RENDER_EVENT));
+}
+
+function saveTodos() {
+    localStorage.setItem('todos', JSON.stringify(todos));
 }
